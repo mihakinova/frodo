@@ -4,10 +4,18 @@ import android.view.View;
 import com.fernandocejas.frodo.annotation.RxLogObservable;
 import java.util.Arrays;
 import java.util.List;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func0;
-import rx.schedulers.Schedulers;
+import java.util.concurrent.Callable;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.fernandocejas.frodo.annotation.RxLogObservable.Scope.EVENTS;
 import static com.fernandocejas.frodo.annotation.RxLogObservable.Scope.EVERYTHING;
@@ -46,15 +54,15 @@ public class ObservableSample {
 
   @RxLogObservable(EVENTS)
   public Observable<String> stringItemWithDefer() {
-    return Observable.defer(new Func0<Observable<String>>() {
-      @Override public Observable<String> call() {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-          @Override public void call(Subscriber<? super String> subscriber) {
+    return Observable.defer(new Callable<ObservableSource<? extends String>>() {
+      @Override public ObservableSource<? extends String> call() throws Exception {
+        return Observable.create(new ObservableOnSubscribe<String>() {
+          @Override public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
             try {
-              subscriber.onNext("String item Three");
-              subscriber.onCompleted();
-            } catch (Exception e) {
-              subscriber.onError(e);
+              e.onNext("String item Three");
+              e.onComplete();
+            } catch (Exception err) {
+              e.onError(err);
             }
           }
         }).subscribeOn(Schedulers.computation());
@@ -81,36 +89,8 @@ public class ObservableSample {
   }
 
   @RxLogObservable
-  public Observable<Void> doSomething(View view) {
-    return Observable.just(null);
-  }
-
-  @RxLogObservable
-  public Observable<String> sendNull() {
-    return Observable.just(null);
-  }
-
-  @RxLogObservable
   public Observable<Void> doNothing() {
     return Observable.empty();
-  }
-
-  public Observable<Integer> numbersBackpressure() {
-    return Observable.create(new Observable.OnSubscribe<Integer>() {
-      @Override
-      public void call(Subscriber<? super Integer> subscriber) {
-        try {
-          if (!subscriber.isUnsubscribed()) {
-            for (int i = 1; i < 10000; i++) {
-              subscriber.onNext(i);
-            }
-            subscriber.onCompleted();
-          }
-        } catch (Exception e) {
-          subscriber.onError(e);
-        }
-      }
-    });
   }
 
   public static final class MyDummyClass {

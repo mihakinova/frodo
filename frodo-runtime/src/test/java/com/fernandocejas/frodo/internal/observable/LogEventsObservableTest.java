@@ -7,7 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
+
+import io.reactivex.observers.TestObserver;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -19,13 +20,13 @@ public class LogEventsObservableTest {
   @Rule public ObservableRule observableRule = new ObservableRule(this.getClass());
 
   private LogEventsObservable loggableObservable;
-  private TestSubscriber subscriber;
+  private TestObserver<String> subscriber;
 
   @Mock private MessageManager messageManager;
 
   @Before
   public void setUp() {
-    subscriber = new TestSubscriber();
+    subscriber = new TestObserver();
     loggableObservable =
         new LogEventsObservable(observableRule.joinPoint(), messageManager, observableRule.info());
   }

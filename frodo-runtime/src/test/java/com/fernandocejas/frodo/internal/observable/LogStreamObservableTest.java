@@ -9,8 +9,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
-import rx.schedulers.TestScheduler;
+
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.TestScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -24,13 +25,13 @@ public class LogStreamObservableTest {
   @Rule public ObservableRule observableRule = new ObservableRule(this.getClass());
 
   private LogStreamObservable loggableObservable;
-  private TestSubscriber subscriber;
+  private TestObserver<String> subscriber;
 
   @Mock private MessageManager messageManager;
 
   @Before
   public void setUp() {
-    subscriber = new TestSubscriber();
+    subscriber = new TestObserver();
     loggableObservable =
         new LogStreamObservable(observableRule.joinPoint(), messageManager, observableRule.info());
   }

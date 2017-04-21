@@ -10,7 +10,8 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import rx.Observable;
+
+import io.reactivex.Observable;
 
 class ObservableRule implements TestRule {
 

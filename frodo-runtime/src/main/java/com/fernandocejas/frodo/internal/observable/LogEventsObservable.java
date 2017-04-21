@@ -2,9 +2,12 @@ package com.fernandocejas.frodo.internal.observable;
 
 import com.fernandocejas.frodo.internal.MessageManager;
 import com.fernandocejas.frodo.joinpoint.FrodoProceedingJoinPoint;
-import rx.Observable;
-import rx.functions.Action0;
-import rx.functions.Action1;
+
+import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 @SuppressWarnings("unchecked") class LogEventsObservable extends LoggableObservable {
   LogEventsObservable(FrodoProceedingJoinPoint joinPoint,
@@ -14,39 +17,39 @@ import rx.functions.Action1;
 
   @Override <T> Observable<T> get(T type) throws Throwable {
     return ((Observable<T>) joinPoint.proceed())
-        .doOnSubscribe(new Action0() {
+        .doOnSubscribe(new Consumer<Disposable>() {
           @Override
-          public void call() {
+          public void accept(@NonNull Disposable disposable) throws Exception {
             messageManager.printObservableOnSubscribe(observableInfo);
           }
         })
-        .doOnNext(new Action1<T>() {
+        .doOnNext(new Consumer<T>() {
           @Override
-          public void call(T value) {
+          public void accept(T value) {
             messageManager.printObservableOnNext(observableInfo);
           }
         })
-        .doOnError(new Action1<Throwable>() {
+        .doOnError(new Consumer<Throwable>() {
           @Override
-          public void call(Throwable throwable) {
+          public void accept(Throwable throwable) {
             messageManager.printObservableOnError(observableInfo, throwable);
           }
         })
-        .doOnCompleted(new Action0() {
+        .doOnComplete(new Action() {
           @Override
-          public void call() {
+          public void run() {
             messageManager.printObservableOnCompleted(observableInfo);
           }
         })
-        .doOnTerminate(new Action0() {
+        .doOnTerminate(new Action() {
           @Override
-          public void call() {
+          public void run() {
             messageManager.printObservableOnTerminate(observableInfo);
           }
         })
-        .doOnUnsubscribe(new Action0() {
+        .doOnDispose(new Action() {
           @Override
-          public void call() {
+          public void run() {
             messageManager.printObservableOnUnsubscribe(observableInfo);
           }
         });

@@ -7,7 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
+
+import io.reactivex.observers.TestObserver;
 
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -17,13 +18,13 @@ public class LogNothingObservableTest {
   @Rule public ObservableRule observableRule = new ObservableRule(this.getClass());
 
   private LogNothingObservable loggableObservable;
-  private TestSubscriber subscriber;
+  private TestObserver<String> subscriber;
 
   @Mock private MessageManager messageManager;
 
   @Before
   public void setUp() {
-    subscriber = new TestSubscriber();
+    subscriber = new TestObserver<>();
     loggableObservable = new LogNothingObservable(observableRule.joinPoint(), messageManager,
         observableRule.info());
   }
@@ -33,7 +34,7 @@ public class LogNothingObservableTest {
     loggableObservable.get(observableRule.stringType()).subscribe(subscriber);
 
     subscriber.assertNoErrors();
-    subscriber.assertCompleted();
+    subscriber.assertComplete();
     verifyZeroInteractions(messageManager);
   }
 }

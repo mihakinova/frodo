@@ -10,8 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
+
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -24,13 +25,13 @@ public class LogEverythingObservableTest {
   @Rule public ObservableRule observableRule = new ObservableRule(this.getClass());
 
   private LogEverythingObservable loggableObservable;
-  private TestSubscriber subscriber;
+  private TestObserver<String> subscriber;
 
   @Mock private MessageManager messageManager;
 
   @Before
   public void setUp() {
-    subscriber = new TestSubscriber();
+    subscriber = new TestObserver<>();
     loggableObservable = new LogEverythingObservable(observableRule.joinPoint(), messageManager,
         observableRule.info());
   }
@@ -63,8 +64,8 @@ public class LogEverythingObservableTest {
   @Test
   public void shouldFillInObservableThreadInfo() throws Throwable {
     loggableObservable.get(observableRule.stringType())
-        .subscribeOn(Schedulers.immediate())
-        .observeOn(Schedulers.immediate())
+        .subscribeOn(Schedulers.trampoline())
+        .observeOn(Schedulers.trampoline())
         .subscribe(subscriber);
 
     final ObservableInfo observableInfo = loggableObservable.getInfo();

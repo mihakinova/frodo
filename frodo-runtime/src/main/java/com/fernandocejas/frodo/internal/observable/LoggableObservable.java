@@ -4,6 +4,8 @@ import com.fernandocejas.frodo.core.annotations.VisibleForTesting;
 import com.fernandocejas.frodo.internal.MessageManager;
 import com.fernandocejas.frodo.joinpoint.FrodoProceedingJoinPoint;
 
+import io.reactivex.Observable;
+
 abstract class LoggableObservable {
 
   final FrodoProceedingJoinPoint joinPoint;
@@ -17,7 +19,7 @@ abstract class LoggableObservable {
     this.observableInfo = new ObservableInfo(joinPoint);
   }
 
-  abstract <T> rx.Observable<T> get(T type) throws Throwable;
+  abstract <T> Observable<T> get(T type) throws Throwable;
 
   @VisibleForTesting ObservableInfo getInfo() {
     return observableInfo;

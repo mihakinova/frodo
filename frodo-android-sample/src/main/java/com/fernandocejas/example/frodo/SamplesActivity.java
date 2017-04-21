@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-import com.fernandocejas.example.frodo.sample.MySubscriber;
-import com.fernandocejas.example.frodo.sample.MySubscriberBackpressure;
-import com.fernandocejas.example.frodo.sample.MySubscriberVoid;
+import com.fernandocejas.example.frodo.sample.MyObserver;
+import com.fernandocejas.example.frodo.sample.MyObserverVoid;
 import com.fernandocejas.example.frodo.sample.ObservableSample;
 import java.util.List;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class SamplesActivity extends Activity {
 
@@ -32,36 +33,41 @@ public class SamplesActivity extends Activity {
       observableSample.numbers()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<Integer>() {
+          .subscribe(new Consumer<Integer>() {
             @Override
-            public void call(Integer integer) {
+            public void accept(Integer integer) {
               toastMessage("onNext() Integer--> " + String.valueOf(integer));
             }
           });
 
-      observableSample.moreNumbers().toList().toBlocking().single();
+      observableSample.moreNumbers().toList().blockingGet();
 
       observableSample.names()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<String>() {
+          .subscribe(new Consumer<String>() {
             @Override
-            public void call(String string) {
+            public void accept(String string) {
               toastMessage("onNext() String--> " + string);
             }
           });
 
       observableSample.error()
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Subscriber<String>() {
+          .subscribe(new Observer<String>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
               //nothing here
             }
 
             @Override
             public void onError(Throwable e) {
               toastMessage("onError() --> " + e.getMessage());
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+
             }
 
             @Override
@@ -73,24 +79,14 @@ public class SamplesActivity extends Activity {
       observableSample.list()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new Action1<List<ObservableSample.MyDummyClass>>() {
+          .subscribe(new Consumer<List<ObservableSample.MyDummyClass>>() {
             @Override
-            public void call(List<ObservableSample.MyDummyClass> myDummyClasses) {
+            public void accept(List<ObservableSample.MyDummyClass> myDummyClasses) {
               toastMessage("onNext() List--> " + myDummyClasses.toString());
             }
           });
 
       observableSample.doNothing()
-          .subscribeOn(Schedulers.newThread())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe();
-
-      observableSample.doSomething(v)
-          .subscribeOn(Schedulers.newThread())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe();
-
-      observableSample.sendNull()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe();
@@ -106,33 +102,17 @@ public class SamplesActivity extends Activity {
       observableSample.strings()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
+          .subscribe(new MyObserver());
 
       observableSample.stringsWithError()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
-
-      observableSample.numbersBackpressure()
-          .onBackpressureDrop()
-          .subscribeOn(Schedulers.newThread())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberBackpressure());
+          .subscribe(new MyObserver());
 
       observableSample.doNothing()
           .subscribeOn(Schedulers.newThread())
           .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberVoid());
-
-      observableSample.doSomething(v)
-          .subscribeOn(Schedulers.newThread())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriberVoid());
-
-      observableSample.sendNull()
-          .subscribeOn(Schedulers.newThread())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(new MySubscriber());
+          .subscribe(new MyObserverVoid());
     }
   };
 
